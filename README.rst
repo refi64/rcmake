@@ -19,16 +19,21 @@ Intrigued? Then read on!
 Installation
 ************
 
-The easy way::
+You need `Crystal <https://crystal-lang.org/>`_ (installation instructions for
+that are `here <https://crystal-lang.org/docs/installation/>`_). (You need
+`shards <https://github.com/crystal-lang/shards>`_ too, but it's included by
+default in the Crystal binary distributions.)
+
+Once you have that, the easy way to get rcmake is::
 
   $ curl -L https://goo.gl/FQKLvw | sh
 
-The hard way::
+If you don't like running random internet scripts, then do it manually::
 
   $ git clone https://github.com/kirbyfan64/rcmake.git
   $ cd rcmake
   $ shards build
-  $ bin/rcmake ...
+  $ ./install.sh /usr/local/bin
 
 How-to
 ******
