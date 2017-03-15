@@ -1,0 +1,21 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+name: rcmake
+version: 0.1.0
+
+authors:
+  - Ryan Gonzalez <rymg19@gmail.com>
+
+targets:
+  rcmake:
+    main: src/rcmake.cr
+
+dependencies:
+  admiral:
+    github: jwaldrip/admiral.cr
+
+crystal: 0.21.1
+
+license: MPL
