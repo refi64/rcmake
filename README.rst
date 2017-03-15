@@ -152,6 +152,7 @@ Command-line usage
   Arguments:
     dir (required)                                      # The build directory to run CMake inside of
 
-## Contributors
+Contributors
+************
 
 - `kirbyfan64 <https://github.com/kirbyfan64>`_ Ryan Gonzalez - creator, maintainer
