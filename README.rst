@@ -19,7 +19,11 @@ Intrigued? Then read on!
 Installation
 ************
 
-::
+The easy way::
+
+  $ curl -L https://goo.gl/FQKLvw | sh
+
+The hard way::
 
   $ git clone https://github.com/kirbyfan64/rcmake.git
   $ cd rcmake
