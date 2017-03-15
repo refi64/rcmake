@@ -32,4 +32,4 @@ curl -fL "$URL" -o rcmake.tar.gz
 tar xvf rcmake.tar.gz
 
 cd rcmake-master
-sh install.sh
+sh install.sh "$INSTALL_TARGET"
