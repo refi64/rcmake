@@ -92,7 +92,20 @@ via the config file, ``~/.rcmake.yml``. By default, it looks like this:
 
   # This is the default rcmake config file.
 
-  default: clang
+  defaults:
+    suite: clang
+    generator: ninja
+    linker: gold
+
+    # Default C/C++/linker/CMake flags would go here:
+    # cflags:
+      # - "-std=c99"
+    # cxxflags:
+    #   - "-std=c++11"
+    # lflags:
+    #   - "-rpath ."
+    # cmakeflags:
+    #   - "-DFOO=BAR"
 
   suites:
     clang:
@@ -108,11 +121,20 @@ via the config file, ``~/.rcmake.yml``. By default, it looks like this:
       cxx: zapcc++
       flavor: clang
 
-If you want to change the default suite, just change the value of ``default``
-to something else.
+If you want to change the default suite, just change the *defaults* section
+like this:
 
-You can add suites, too. If you find yourself often cross-compiling for Windows,
-you could add a suite like this:
+.. code-block:: yaml
+
+  defaults:
+    suite: gcc
+    # ...
+
+The same goes changing the default generator and linker: just change their
+value inside the *defaults* section.
+
+You can add custom suites, too. For instance, if you find yourself often
+cross-compiling for Windows, you could add a suite like this:
 
 .. code-block:: yaml
 

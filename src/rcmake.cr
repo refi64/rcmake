@@ -15,7 +15,20 @@ DEFAULT_CONFIG = "~/.rcmake.yml"
 DEFAULT_YAML = <<-YAML
 # This is the default rcmake config file.
 
-default: clang
+defaults:
+  suite: clang
+  generator: ninja
+  linker: gold
+
+  # Default C/C++/linker/CMake flags would go here:
+  # cflags:
+  #   - "-std=c99"
+  # cxxflags:
+  #   - "-std=c++11"
+  # lflags:
+  #   - "-rpath ."
+  # cmakeflags:
+  #   - "-DFOO=BAR"
 
 suites:
   clang:
@@ -50,52 +63,59 @@ macro auto_enum_methods(type)
 end
 
 
-enum Generators
-  Make
-  Ninja
+class Config
+  enum Generators
+    Make
+    Ninja
 
-  def to_cmake
-    case self
-    when Make then "Unix Makefiles"
-    when Ninja then "Ninja"
-    else raise "Invalid generator #{self} in to_cmake"
+    def to_cmake
+      case self
+      when Make then "Unix Makefiles"
+      when Ninja then "Ninja"
+      else raise "Invalid generator #{self} in to_cmake"
+      end
     end
   end
-end
 
 
-enum Linkers
-  BFD
-  Gold
-  LLD
+  enum Linkers
+    BFD
+    Gold
+    LLD
 
-  def to_cmake
-    to_s.downcase
+    def to_cmake
+      to_s.downcase
+    end
   end
-end
 
 
-enum BuildType
-  Debug
-  Release
-  RelWithDebInfo
-  MinSizeRel
+  enum BuildType
+    Debug
+    Release
+    RelWithDebInfo
+    MinSizeRel
 
-  def to_cmake
-    to_s
+    def to_cmake
+      to_s
+    end
   end
-end
 
 
-auto_enum_methods Generators
-auto_enum_methods Linkers
-auto_enum_methods BuildType
+  auto_enum_methods Generators
+  auto_enum_methods Linkers
+  auto_enum_methods BuildType
 
 
-class Config
   enum Flavor
     GCC
     Clang
+  end
+
+
+  class Defaults
+    YAML.mapping suite: String, generator: Generators, linker: Linkers,
+                 cflags: Array(String)?, cxxflags: Array(String)?,
+                 lflags: Array(String)?, cmakeflags: Array(String)?
   end
 
 
@@ -104,7 +124,7 @@ class Config
   end
 
 
-  YAML.mapping default: String, suites: Hash(String, Suite)
+  YAML.mapping defaults: Defaults, suites: Hash(String, Suite)
 end
 
 
@@ -146,9 +166,8 @@ class Rcmake < Admiral::Command
               default: "cmake",
               short: x
 
-  define_flag gen : Generators,
-              description: "The generator to use #{Generators.choices}",
-              default: Generators::Ninja,
+  define_flag gen : Config::Generators,
+              description: "The generator to use #{Config::Generators.choices}",
               short: g
 
   define_flag config,
@@ -156,18 +175,17 @@ class Rcmake < Admiral::Command
               default: DEFAULT_CONFIG,
               short: f
 
-  define_flag type : BuildType,
-              description: "The build type #{BuildType.choices}",
-              default: BuildType::Debug,
+  define_flag type : Config::BuildType,
+              description: "The build type #{Config::BuildType.choices}",
+              default: Config::BuildType::Debug,
               short: t
 
   define_flag suite,
               description: "The compiler suite to use",
               short: c
 
-  define_flag linker : Linkers,
-              description: "The linker to use #{Linkers.choices}",
-              default: Linkers::Gold,
+  define_flag linker : Config::Linkers,
+              description: "The linker to use #{Config::Linkers.choices}",
               short: l
 
   define_flag cflag : Array(String),
@@ -247,7 +265,7 @@ class Rcmake < Admiral::Command
 
 
   def get_suite(config, suite_name)
-    suite_name ||= config.default
+    suite_name ||= config.defaults.suite
 
     suite = config.suites[suite_name]?
     if suite
@@ -302,16 +320,16 @@ class Rcmake < Admiral::Command
   end
 
 
-  def run_cmake(cmake, suite)
+  def run_cmake(cmake, config, suite)
     builddir = arguments.dir
     sourcedir = flags.source
-    gen = flags.gen
+    gen = flags.gen || config.defaults.generator
     buildtype = flags.type
-    ld = flags.linker
-    cflags = flags.cflag
-    cxxflags = flags.cxxflag
-    lflags = flags.lflag
-    cmakeflags = flags.cmakeflag
+    ld = flags.linker || config.defaults.linker
+    cflags = (config.defaults.cflags || [] of String) + flags.cflag
+    cxxflags = (config.defaults.cxxflags || [] of String) + flags.cxxflag
+    lflags = (config.defaults.lflags || [] of String) + flags.lflag
+    cmakeflags = (config.defaults.cmakeflags || [] of String) + flags.cmakeflag
     args = [] of String
 
     setup_builddir builddir
@@ -324,7 +342,7 @@ class Rcmake < Admiral::Command
     args.push "-DCMAKE_C_COMPILER=#{suite.c}"
     args.push "-DCMAKE_CXX_COMPILER=#{suite.cxx}"
 
-    if suite.flavor == Config::Flavor::GCC && ld == Linkers::LLD
+    if suite.flavor == Config::Flavor::GCC && ld == Config::Linkers::LLD
       die "LLD can't be used with GCC (#{GCC_LLD_LINK})."
     end
 
@@ -346,7 +364,7 @@ class Rcmake < Admiral::Command
     config = read_config flags.config
     suite = get_suite config, flags.suite
 
-    run_cmake cmake, suite
+    run_cmake cmake, config, suite
   end
 end
 
