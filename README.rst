@@ -35,6 +35,11 @@ If you don't like running random internet scripts, then do it manually::
   $ shards build
   $ ./install.sh /usr/local/bin
 
+If you're using `Rootbox <https://project-rootbox.github.io/>`_, then you can
+use the included factory using the location ``git:kirbyfan64/rcmake``, e.g.::
+
+  rootbox box.new mybox -f git:kirbyfan64/rcmake ...
+
 How-to
 ******
 
