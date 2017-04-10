@@ -229,7 +229,7 @@ class Rcmake < Admiral::Command
   end
 
 
-  def parse_flags!
+  def parse_flags!(validate = false)
     attempt "Error parsing command-line arguments" { previous_def }
   end
 
