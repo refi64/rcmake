@@ -238,7 +238,7 @@ class Rcmake < Admiral::Command
     if !(path = Process.find_executable given)
       die "Failed to locate '#{given}'"
     end
-    path
+    path.not_nil!
   end
 
 
